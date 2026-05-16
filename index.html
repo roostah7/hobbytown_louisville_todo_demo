@@ -407,8 +407,8 @@
   .cc-hd-row { display: flex; align-items: flex-start; gap: 10px; }
   @media (max-width: 880px) { .today-grid { grid-template-columns: 1fr; } }
 
-  /* Cycle Count card (right sidebar, wider) */
-  .cc-card { position: sticky; top: 70px; height: calc(100vh - 90px); max-height: calc(100vh - 90px); display: flex; flex-direction: column; min-height: 820px; overflow: hidden; }
+  /* Cycle Count card (right sidebar, wider) — doubled height so the SKU table shows ~40+ rows */
+  .cc-card { display: flex; flex-direction: column; min-height: 1640px; height: max(1640px, calc(200vh - 180px)); overflow: hidden; }
 
   /* Compact "what's expected today" — collapsible */
   .cc-steps { padding: 0 16px; }
@@ -595,7 +595,7 @@
   .cc-steps ol li::marker { color: var(--red); font-weight: 800; }
   .cc-actions { padding: 10px 16px; display: flex; gap: 8px; flex-wrap: wrap; border-top: 1px solid var(--line); }
   .cc-actions .btn { flex: 1 1 0; min-width: 0; white-space: nowrap; padding-left: 8px; padding-right: 8px; }
-  .cc-skus { flex: 1 1 0; min-height: 600px; overflow: auto; border-top: 1px solid var(--line); }
+  .cc-skus { flex: 1 1 0; min-height: 1200px; overflow: auto; border-top: 1px solid var(--line); }
   .cc-skus table { width: 100%; border-collapse: collapse; font-size: 12px; }
   .cc-skus th, .cc-skus td { padding: 6px 8px; border-bottom: 1px solid var(--line); text-align: left; }
   .cc-skus th { position: sticky; top: 0; background: var(--card); color: var(--muted); font-size: 10.5px; letter-spacing: .4px; text-transform: uppercase; font-weight: 700; z-index: 1; }
