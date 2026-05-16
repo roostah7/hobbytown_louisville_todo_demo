@@ -959,7 +959,6 @@
       <select id="p-role">
         <option value="member">Team Member</option>
         <option value="manager">Manager</option>
-        <option value="owner">Owner</option>
       </select>
     </div>
     <div class="actions">
@@ -980,7 +979,7 @@ window._htBadgeImg.src = LOGO_DATA_URL;
    Persists to localStorage. Next iteration: add Supabase sync.
    ============================================================ */
 
-const TASKS_VERSION = "2026.01.37";  // bumped: 50/50 split, bigger SKU table, collapsible cycle count
+const TASKS_VERSION = "2026.01.38";  // bumped: owner role removed, manager+team only
 
 const CYCLE_COUNT_SCHEDULE = [{"d":1,"cat":"Paint/Tool","b":"1 of 16","sku":77,"pl":"Tamiya","min":31},{"d":2,"cat":"R/C Land","b":"1 of 15","sku":76,"pl":"Traxxas","min":30},{"d":3,"cat":"Specialty","b":"1 of 14","sku":78,"pl":"None","min":31},{"d":4,"cat":"Games","b":"1 of 12","sku":74,"pl":"Games Workshop","min":30},{"d":5,"cat":"Models","b":"1 of 6","sku":74,"pl":"BANDAI SPIRITS","min":30},{"d":6,"cat":"Paint/Tool","b":"2 of 16","sku":77,"pl":"Tamiya","min":31},{"d":7,"cat":"R/C Land","b":"2 of 15","sku":76,"pl":"Traxxas","min":30},{"d":8,"cat":"Specialty","b":"2 of 14","sku":77,"pl":"None","min":31},{"d":9,"cat":"Games","b":"2 of 12","sku":74,"pl":"Games Workshop","min":30},{"d":10,"cat":"Paint/Tool","b":"3 of 16","sku":77,"pl":"Tamiya","min":31},{"d":11,"cat":"R/C Land","b":"3 of 15","sku":75,"pl":"Traxxas","min":30},{"d":12,"cat":"Specialty","b":"3 of 14","sku":78,"pl":"None \u00b7 Eurographics","min":31},{"d":13,"cat":"Games","b":"3 of 12","sku":74,"pl":"Games Workshop","min":30},{"d":14,"cat":"Paint/Tool","b":"4 of 16","sku":77,"pl":"Tamiya \u00b7 The Army Painter","min":31},{"d":15,"cat":"R/C Land","b":"4 of 15","sku":76,"pl":"Traxxas","min":30},{"d":16,"cat":"Models","b":"2 of 6","sku":74,"pl":"BANDAI SPIRITS","min":30},{"d":17,"cat":"Specialty","b":"4 of 14","sku":78,"pl":"Eurographics","min":31},{"d":18,"cat":"Paint/Tool","b":"5 of 16","sku":77,"pl":"The Army Painter","min":31},{"d":19,"cat":"Games","b":"4 of 12","sku":74,"pl":"Games Workshop","min":30},{"d":20,"cat":"R/C Land","b":"5 of 15","sku":76,"pl":"Traxxas","min":30},{"d":21,"cat":"Specialty","b":"5 of 14","sku":78,"pl":"Eurographics \u00b7 Robotime","min":31},{"d":22,"cat":"Paint/Tool","b":"6 of 16","sku":77,"pl":"The Army Painter","min":31},{"d":23,"cat":"R/C Land","b":"6 of 15","sku":76,"pl":"Traxxas","min":30},{"d":24,"cat":"Games","b":"5 of 12","sku":74,"pl":"Games Workshop","min":30},{"d":25,"cat":"Specialty","b":"6 of 14","sku":77,"pl":"Robotime \u00b7 BLOKEES","min":31},{"d":26,"cat":"Paint/Tool","b":"7 of 16","sku":77,"pl":"The Army Painter \u00b7 Vallejo Paints","min":31},{"d":27,"cat":"Models","b":"3 of 6","sku":74,"pl":"BANDAI SPIRITS","min":30},{"d":28,"cat":"R/C Land","b":"7 of 15","sku":76,"pl":"Traxxas \u00b7 Arrma","min":30},{"d":29,"cat":"Games","b":"6 of 12","sku":74,"pl":"Games Workshop","min":30},{"d":30,"cat":"Specialty","b":"7 of 14","sku":78,"pl":"BLOKEES \u00b7 Keycraft","min":31},{"d":31,"cat":"Paint/Tool","b":"8 of 16","sku":77,"pl":"Vallejo Paints","min":31},{"d":32,"cat":"R/C Air","b":"1 of 1","sku":102,"pl":"DuBro \u00b7 RAGE RC \u00b7 Traxxas \u00b7 E-Flite + 13 more","min":41},{"d":33,"cat":"R/C Land","b":"8 of 15","sku":75,"pl":"Arrma","min":30},{"d":34,"cat":"Railroad+Misc","b":"1 of 1","sku":87,"pl":"WALTHERS ACCESSORIES ~WAL \u00b7 None \u00b7 WOODLAND SCEN \u00b7 ATLAS TRAINS + 12 more","min":35},{"d":35,"cat":"Paint/Tool","b":"9 of 16","sku":77,"pl":"Vallejo Paints \u00b7 Testors","min":31},{"d":36,"cat":"Specialty","b":"8 of 14","sku":78,"pl":"Keycraft \u00b7 BC MINI \u00b7 Nanoblock Construction","min":31},{"d":37,"cat":"Games","b":"7 of 12","sku":73,"pl":"Games Workshop \u00b7 The Army Painter","min":29},{"d":38,"cat":"R/C Land","b":"9 of 15","sku":76,"pl":"Arrma \u00b7 TREAL HOBBY","min":30},{"d":39,"cat":"Models","b":"4 of 6","sku":74,"pl":"BANDAI SPIRITS","min":30},{"d":40,"cat":"Paint/Tool","b":"10 of 16","sku":77,"pl":"Testors \u00b7 REVELL-MONOGRAM","min":31},{"d":41,"cat":"Specialty","b":"9 of 14","sku":77,"pl":"Nanoblock Construction \u00b7 Toysmith \u00b7 Crazy Aaron's","min":31},{"d":42,"cat":"Games","b":"8 of 12","sku":74,"pl":"The Army Painter \u00b7 ARCANE TINMEN ~ACD~ALL~ATM","min":30},{"d":43,"cat":"R/C Land","b":"10 of 15","sku":76,"pl":"TREAL HOBBY \u00b7 Kyosho \u00b7 AXIAL CORP","min":30},{"d":44,"cat":"Paint/Tool","b":"11 of 16","sku":77,"pl":"REVELL-MONOGRAM \u00b7 K&S","min":31},{"d":45,"cat":"Specialty","b":"10 of 14","sku":78,"pl":"Crazy Aaron's \u00b7 LEGO \u00b7 TY INC-BEANIE BABIES~DIRECT \u00b7 Estes","min":31},{"d":46,"cat":"R/C Land","b":"11 of 15","sku":76,"pl":"AXIAL CORP \u00b7 Losi \u00b7 EcoPower \u00b7 Pro-Line + 1 more","min":30},{"d":47,"cat":"Games","b":"9 of 12","sku":74,"pl":"ARCANE TINMEN ~ACD~ALL~ATM \u00b7 WOODLAND SCEN","min":30},{"d":48,"cat":"Paint/Tool","b":"12 of 16","sku":77,"pl":"K&S \u00b7 EVERGREEN SCALE","min":31},{"d":49,"cat":"Models","b":"5 of 6","sku":74,"pl":"BANDAI SPIRITS \u00b7 None \u00b7 AOSHIMA ~STV~DIRECT","min":30},{"d":50,"cat":"Specialty","b":"11 of 14","sku":78,"pl":"Estes \u00b7 SCHLEICH N. AMERICA ~SCK~DIRECT \u00b7 SCHYLLING ~SCY \u00b7 PINE CAR","min":31},{"d":51,"cat":"R/C Land","b":"12 of 15","sku":76,"pl":"Yeah Racing \u00b7 HOBBY ETC/HOT RACING \u00b7 Spektrum RC \u00b7 Upgrade R/C + 1 more","min":30},{"d":52,"cat":"Paint/Tool","b":"13 of 16","sku":77,"pl":"EVERGREEN SCALE \u00b7 Games Workshop","min":31},{"d":53,"cat":"Games","b":"10 of 12","sku":74,"pl":"WOODLAND SCEN \u00b7 None","min":30},{"d":54,"cat":"Specialty","b":"12 of 14","sku":78,"pl":"SQUISHABLE \u00b7 Cobble Hill Puzzles \u00b7 GEL BLASTER \u00b7 Mattel + 4 more","min":31},{"d":55,"cat":"R/C Land","b":"13 of 15","sku":75,"pl":"RC4WD \u00b7 INJORA \u00b7 ProTek RC \u00b7 RPM INC + 3 more","min":30},{"d":56,"cat":"Paint/Tool","b":"14 of 16","sku":77,"pl":"Games Workshop \u00b7 Traxxas \u00b7 DSPIAE \u00b7 AK INTERACTIVE ~STV","min":31},{"d":57,"cat":"Games","b":"11 of 12","sku":74,"pl":"None \u00b7 Wizards Of The Coast \u00b7 FOAM BRAIN GAMES \u00b7 Outset Media + 1 more","min":30},{"d":58,"cat":"Specialty","b":"13 of 14","sku":77,"pl":"AUTO WORLD ~STV~HHW \u00b7 Crayola Llc \u00b7 Magnum Rubber Band Guns \u00b7 DART ZONE + 14 more","min":31},{"d":59,"cat":"R/C Land","b":"14 of 15","sku":76,"pl":"Common Sense RC \u00b7 Samix \u00b7 ECX \u00b7 Maverick + 9 more","min":30},{"d":60,"cat":"Paint/Tool","b":"15 of 16","sku":77,"pl":"AK INTERACTIVE ~STV \u00b7 MR. HOBBY PAINTS AND TOOLS \u00b7 ATLAS BRUSHES \u00b7 Bob Smith Industries + 3 more","min":31},{"d":61,"cat":"Models","b":"6 of 6","sku":74,"pl":"AOSHIMA ~STV~DIRECT \u00b7 Kotobukiya Models \u00b7 YOLO PARK \u00b7 GOOD SMILE COMPANY + 17 more","min":30},{"d":62,"cat":"Games","b":"12 of 12","sku":74,"pl":"ULTRAPRO ~ACD~ALL~SHD \u00b7 ULTI ~ULT \u00b7 BANDAI SPIRITS \u00b7 SMART TOYS AND GAMES + 22 more","min":30},{"d":63,"cat":"Specialty","b":"14 of 14","sku":78,"pl":"Coex \u00b7 Dream International \u00b7 Games Workshop \u00b7 GoatGuns + 46 more","min":31},{"d":64,"cat":"R/C Land","b":"15 of 15","sku":76,"pl":"*R* RCE RACERS EDGE \u00b7 Carrera \u00b7 DuraTrax \u00b7 MyTrickRC + 48 more","min":30},{"d":65,"cat":"Paint/Tool","b":"16 of 16","sku":77,"pl":"MODELCRAFT \u00b7 GOD HAND TOOLS \u00b7 BRU LINE ~BRU \u00b7 EcoPower + 31 more","min":31}];
 
@@ -1100,50 +1099,50 @@ function todaysCycleCount() {
   // bump this whenever DEFAULT_OPEN/MID/CLOSE changes
 // ---------- Default content ----------
 // Each task: { text, roles } — roles is an array of who is responsible.
-// Roles: "owner" | "manager" | "lead" | "member"
+// Roles: "manager" | "member"
 // "lead" = Shift Lead (junior manager). Anyone in the listed roles can complete the task.
 // We store a single canonical task list per section; the UI filters per current user.
-const ALL_ROLES = ["owner", "manager", "member"];
-const ROLE_LABELS = { owner: "Owner", manager: "Manager", member: "Team Member" };
+const ALL_ROLES = ["manager", "member"];
+const ROLE_LABELS = { manager: "Manager", member: "Team Member" };
 
 const DEFAULT_OPEN = [
-  { text: "Pre-shift: clock in, review yesterday's punches, fix any missed punches",                roles: ["owner","manager"] },
-  { text: "Review yesterday's sales, margin focus, and today's sales target",                       roles: ["owner","manager"] },
-  { text: "Check store email and corporate communications",                                         roles: ["owner","manager"] },
+  { text: "Pre-shift: clock in, review yesterday's punches, fix any missed punches",                roles: ["manager"] },
+  { text: "Review yesterday's sales, margin focus, and today's sales target",                       roles: ["manager"] },
+  { text: "Check store email and corporate communications",                                         roles: ["manager"] },
   { text: "Sidewalk and storefront exterior clean and debris-free",                                 roles: ALL_ROLES },
   { text: "Front signage clean & visible; doors and windows free of fingerprints",                  roles: ALL_ROLES },
   { text: "Floors, counters, registers, and high-touch surfaces clean",                             roles: ALL_ROLES },
   { text: "Restrooms fresh and fully supplied (TP, napkins, hand soap)",                            roles: ALL_ROLES },
   { text: "Aisles walked — every product front-faced, price tags legible (incl. impulse displays)", roles: ALL_ROLES },
   { text: "Endcaps and feature areas merchandised to drive sales & margin",                         roles: ALL_ROLES },
-  { text: "Opening drawers counted ($100/drawer); coin change verified; counted in front of manager", roles: ["owner","manager"] },
-  { text: "POS, credit card terminal, receipt printer, and internet all tested",                    roles: ["owner","manager"] },
+  { text: "Opening drawers counted ($100/drawer); coin change verified; counted in front of manager", roles: ["manager"] },
+  { text: "POS, credit card terminal, receipt printer, and internet all tested",                    roles: ["manager"] },
   { text: "Open sign light, Gundam sign light, display-case lights, TVs, music all on",             roles: ALL_ROLES },
-  { text: "Remind team of products to highlight, new releases, newly received products, and priorities for the day.", roles: ["owner","manager"] },
-  { text: "Doors unlocked on time — greet every customer within 10 ft / 3 sec",                     roles: ["owner","manager"] }
+  { text: "Remind team of products to highlight, new releases, newly received products, and priorities for the day.", roles: ["manager"] },
+  { text: "Doors unlocked on time — greet every customer within 10 ft / 3 sec",                     roles: ["manager"] }
 ];
 
 const DEFAULT_CLOSE = [
   { text: "Maintain full customer engagement until the last customer leaves",                       roles: ALL_ROLES },
-  { text: "Continue upselling and add-on selling through close — don't signal closing early",       roles: ["owner","manager"] },
+  { text: "Continue upselling and add-on selling through close — don't signal closing early",       roles: ["manager"] },
   { text: "Recover aisles; face gondolas, shelves, and endcaps; line up models neatly",             roles: ALL_ROLES },
   { text: "Vacuum floors and mop as needed",                                                        roles: ALL_ROLES },
   { text: "Clean doors, windows, glass, counters, and high-touch surfaces",                         roles: ALL_ROLES },
   { text: "Empty all trash and remove from the store",                                              roles: ALL_ROLES },
   { text: "Clean restrooms; restock toilet paper, napkins, and hand soap",                          roles: ALL_ROLES },
   { text: "Confirm with manager that the cash count and bank deposit are handled before leaving",   roles: ALL_ROLES },
-  { text: "Close registers per cash-handling policy; count all drawers",                            roles: ["owner","manager"] },
-  { text: "Investigate & document any cash variances ≥ $2; recount; contact Bryce if persistent",   roles: ["owner","manager"] },
-  { text: "Prepare and seal the bank deposit for tomorrow's drop",                                  roles: ["owner","manager"] },
-  { text: "Review Sales and Profit vs. goals to identify trends",                                   roles: ["owner","manager"] },
-  { text: "Document key wins, misses, customer feedback, and follow-ups",                           roles: ["owner","manager"] },
-  { text: "Confirm all customers have exited; check restrooms & back area",                         roles: ["owner","manager"] },
-  { text: "Turn off all store/display lights, TVs, music, non-essential equipment",                 roles: ["owner","manager"] },
-  { text: "Lock all doors before leaving",                                                          roles: ["owner","manager"] }
+  { text: "Close registers per cash-handling policy; count all drawers",                            roles: ["manager"] },
+  { text: "Investigate & document any cash variances ≥ $2; recount; contact Bryce if persistent",   roles: ["manager"] },
+  { text: "Prepare and seal the bank deposit for tomorrow's drop",                                  roles: ["manager"] },
+  { text: "Review Sales and Profit vs. goals to identify trends",                                   roles: ["manager"] },
+  { text: "Document key wins, misses, customer feedback, and follow-ups",                           roles: ["manager"] },
+  { text: "Confirm all customers have exited; check restrooms & back area",                         roles: ["manager"] },
+  { text: "Turn off all store/display lights, TVs, music, non-essential equipment",                 roles: ["manager"] },
+  { text: "Lock all doors before leaving",                                                          roles: ["manager"] }
 ];
 
 const DEFAULT_PEOPLE = [
-  { id: cryptoId(), name: "Bryce", role: "owner" },
+  { id: cryptoId(), name: "Bryce", role: "manager" },
   { id: cryptoId(), name: "Kyle", role: "manager" }
 ];
 
@@ -1160,11 +1159,11 @@ const DEFAULT_MID = [
   { text: "Fill any holes on shelves and displays from backstock",                                                                                                                                       roles: ALL_ROLES },
   { text: "Check restrooms mid-shift; top up napkins, TP, hand soap",                                                                                                                                    roles: ALL_ROLES },
   { text: "Flag inventory holes or low-stock items to a manager for reorder",                                                                                                                            roles: ALL_ROLES },
-  { text: "Coach team members on the greeting standard and customer engagement throughout the shift",                                                                                                    roles: ["owner","manager"] },
-  { text: "Check email and corporate communications at least once mid-shift",                                                                                                                            roles: ["owner","manager"] },
-  { text: "Review and resolve any escalated customer complaints",                                                                                                                                        roles: ["owner","manager"] },
-  { text: "Walk the floor to inspect merchandising standards and reset anything out of compliance",                                                                                                      roles: ["owner","manager"] },
-  { text: "Review the negative in-stock report in SmartWeb and correct any discrepancies",                                                                                                                roles: ["owner","manager"] },
+  { text: "Coach team members on the greeting standard and customer engagement throughout the shift",                                                                                                    roles: ["manager"] },
+  { text: "Check email and corporate communications at least once mid-shift",                                                                                                                            roles: ["manager"] },
+  { text: "Review and resolve any escalated customer complaints",                                                                                                                                        roles: ["manager"] },
+  { text: "Walk the floor to inspect merchandising standards and reset anything out of compliance",                                                                                                      roles: ["manager"] },
+  { text: "Review the negative in-stock report in SmartWeb and correct any discrepancies",                                                                                                                roles: ["manager"] },
 ];
 
 // ---------- Storage helpers ----------
@@ -1235,25 +1234,25 @@ Object.keys(state.days).forEach(k => { if (!state.days[k].midshift) state.days[k
   state.tasks[sec].forEach(t => { if (!Array.isArray(t.roles) || t.roles.length === 0) t.roles = ALL_ROLES.slice(); });
 });
 // ensure each person has a role; migrate any legacy "lead" → "manager"
+// and "owner" → "manager" (owner role removed from app)
 state.people.forEach(p => {
   if (!p.role) p.role = 'member';
   if (p.role === 'lead') p.role = 'manager';
+  if (p.role === 'owner') p.role = 'manager';
 });
 // Apply dynamic task content (cycle count for today, etc.)
 applyDynamicTasks();
 
-// migrate any task role arrays that include the legacy "lead"
+// migrate any task role arrays that include the legacy "lead" or "owner"
 ['opening','midshift','closing'].forEach(sec => {
   state.tasks[sec].forEach(t => {
     if (Array.isArray(t.roles)) {
-      t.roles = t.roles.filter(r => r !== 'lead');
-      if (!t.roles.includes('manager') && state.tasks[sec].some(o => o.roles && o.roles.includes('manager'))) {
-        // no-op: just ensure we don't drop the manager role accidentally
-      }
+      t.roles = t.roles.filter(r => r !== 'lead' && r !== 'owner');
       if (t.roles.length === 0) t.roles = ALL_ROLES.slice();
     }
   });
 });
+save();
 
 // ---------- Audio (web audio api - no asset needed) ----------
 let audioCtx;
@@ -1606,7 +1605,7 @@ function ensureDay(k = todayKey()) {
 
 // ---------- Role helpers ----------
 function currentUser() { return state.people.find(p => p.id === state.currentUserId) || null; }
-function canManage() { const u = currentUser(); return u && (u.role === 'owner' || u.role === 'manager'); }
+function canManage() { const u = currentUser(); return u && u.role === 'manager'; }
 function visibleTasks(section) {
   const u = currentUser();
   const all = state.tasks[section];
@@ -1683,7 +1682,7 @@ function renderChecklist(section) {
   });
   updateProgress(section);
 }
-function roleShort(r) { return ({owner:'Own', manager:'Mgr', member:'Team'})[r] || r; }
+function roleShort(r) { return ({manager:'Mgr', member:'Team'})[r] || r; }
 function escapeHtml(s) { return s.replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c])); }
 
 function toggle(section, taskId, el) {
@@ -1776,71 +1775,15 @@ function renderTargetsCard() {
   const card = document.getElementById('card-targets');
   if (!card) return;
   const u = currentUser();
-  if (!u || (u.role !== 'manager' && u.role !== 'owner')) {
+  if (!u || u.role !== 'manager') {
     card.style.display = 'none';
     return;
   }
   card.style.display = '';
-  const isOwner = (u.role === 'owner');
   const now = new Date();
   const dow = now.getDay();
   const t = SALES_TARGETS[dow];
   const dateStr = now.toLocaleDateString([], { weekday: 'long', month: 'short', day: 'numeric' });
-
-  // OWNER view: full three-tile card + Show full week toggle
-  if (isOwner) {
-    const isOpen = card.classList.contains('week-open');
-    const rows = Object.keys(SALES_TARGETS).map(k => {
-      const r = SALES_TARGETS[k]; const today = (+k === dow);
-      return `<tr class="${today ? 'today' : ''}">
-        <td>${r.day}${today ? ' <span style="color:var(--muted); font-size:10.5px;">(today)</span>' : ''}</td>
-        <td class="num">${fmtUSD(r.avgSales)}</td>
-        <td class="num">${fmtUSD(r.avgGP)}</td>
-        <td class="num">${fmtUSD(r.breakEven)}</td>
-        <td class="num" style="color:var(--good);">+${fmtUSD(r.net)}</td>
-      </tr>`;
-    }).join('');
-    const wt = SALES_TARGETS_META.weekTotal;
-    const totalRow = `<tr class="total">
-      <td>Week total (n=${wt.samples})</td>
-      <td class="num">${fmtUSD(wt.avgSales)}</td>
-      <td class="num">${fmtUSD(wt.avgGP)}</td>
-      <td class="num">${fmtUSD(wt.breakEven)}</td>
-      <td class="num" style="color:var(--good);">+${fmtUSD(wt.net)}</td>
-    </tr>`;
-    card.innerHTML = `
-      <div class="tg-hd">
-        <div>
-          <div class="kicker">TODAY'S SALES & PROFIT TARGETS</div>
-          <h3>${t.day} target</h3>
-        </div>
-        <div class="right">${dateStr}</div>
-      </div>
-      <div class="tg-tiles">
-        <div class="tg-tile"><div class="v">${fmtUSD(t.avgSales)}</div><div class="l">Avg Sales</div></div>
-        <div class="tg-tile">
-          <div class="v">${fmtUSD(t.avgGP)}</div>
-          <div class="l">Avg Gross Profit</div>
-        </div>
-        <div class="tg-tile">
-          <div class="v">${fmtUSD(t.breakEven)}</div>
-          <div class="l">Break-even Target</div>
-        </div>
-      </div>
-      <div class="tg-foot">
-        <span>Based on ${t.samples} actual ${t.day}s &middot; ${SALES_TARGETS_META.sampleStart}–${SALES_TARGETS_META.sampleEnd} &middot; ${SALES_TARGETS_META.margin}% GP margin</span>
-        <button data-act="toggle-week">${isOpen ? 'Hide full week ▲' : 'Show full week ▼'}</button>
-      </div>
-      <div class="tg-week ${isOpen ? 'open' : ''}">
-        <table>
-          <thead><tr><th>Day</th><th class="num">Avg Sales</th><th class="num">Avg GP</th><th class="num">Break-even</th><th class="num">Net</th></tr></thead>
-          <tbody>${rows}${totalRow}</tbody>
-        </table>
-      </div>`;
-    const btn = card.querySelector('[data-act="toggle-week"]');
-    if (btn) btn.onclick = () => { card.classList.toggle('week-open'); renderTargetsCard(); };
-    return;
-  }
 
   // MANAGER view: Break-even target single tile, with "Show full week" toggle (break-even only)
   const isOpenMgr = card.classList.contains('week-open');
