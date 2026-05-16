@@ -379,12 +379,32 @@
   @media print { .tg-card { display: none !important; } }
 
   /* Two-column Today layout for wide screens */
-  .today-grid { display: grid; grid-template-columns: minmax(360px, 1fr) minmax(640px, 1.55fr); gap: 24px; }
+  .today-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start; }
+  .today-grid.cc-collapsed { grid-template-columns: 1fr; }
+  .today-grid.cc-collapsed .today-side { display: none; }
+  .cc-expand-btn {
+    background: var(--dark); color: #fff; border: 0; cursor: pointer;
+    padding: 10px 14px; border-radius: 10px; font-weight: 700; font-size: 12.5px;
+    display: none; align-items: center; gap: 8px; margin-bottom: 14px;
+    box-shadow: var(--shadow);
+  }
+  .cc-expand-btn:hover { background: #000; }
+  .today-grid.cc-collapsed ~ .cc-expand-btn,
+  body .today-grid.cc-collapsed .cc-expand-btn-inline { display: inline-flex; }
+  /* Collapse button inside the cc-card header */
+  .cc-hd .cc-collapse-btn {
+    background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.22);
+    color: #fff; width: 32px; height: 32px; border-radius: 8px;
+    cursor: pointer; font-size: 14px; font-weight: 700;
+    display: grid; place-items: center; margin-left: auto;
+  }
+  .cc-hd .cc-collapse-btn:hover { background: rgba(255,255,255,.28); }
+  .cc-hd-row { display: flex; align-items: flex-start; gap: 10px; }
   @media (max-width: 880px) { .today-grid { grid-template-columns: 1fr; } }
 
   /* Cycle Count card (right sidebar, wider) */
-  .cc-card { position: sticky; top: 70px; max-height: calc(100vh - 90px); display: flex; flex-direction: column; }
-  .cc-skus { flex: 1; min-height: 360px; }
+  .cc-card { position: sticky; top: 70px; max-height: calc(100vh - 90px); display: flex; flex-direction: column; min-height: 700px; }
+  .cc-skus { flex: 1; min-height: 520px; max-height: none; }
 
   /* Compact "what's expected today" — collapsible */
   .cc-steps { padding: 0 16px; }
@@ -716,6 +736,7 @@
 
     <div class="today-grid">
     <div class="today-main">
+    <button class="cc-expand-btn cc-expand-btn-inline" id="cc-expand-btn">📋 Show Cycle Count</button>
 
     <div class="card" style="margin-bottom: 16px;">
       <div class="hd2">
@@ -952,7 +973,7 @@ window._htBadgeImg.src = LOGO_DATA_URL;
    Persists to localStorage. Next iteration: add Supabase sync.
    ============================================================ */
 
-const TASKS_VERSION = "2026.01.36";  // bumped: fix day navigator contrast on weekend
+const TASKS_VERSION = "2026.01.37";  // bumped: 50/50 split, bigger SKU table, collapsible cycle count
 
 const CYCLE_COUNT_SCHEDULE = [{"d":1,"cat":"Paint/Tool","b":"1 of 16","sku":77,"pl":"Tamiya","min":31},{"d":2,"cat":"R/C Land","b":"1 of 15","sku":76,"pl":"Traxxas","min":30},{"d":3,"cat":"Specialty","b":"1 of 14","sku":78,"pl":"None","min":31},{"d":4,"cat":"Games","b":"1 of 12","sku":74,"pl":"Games Workshop","min":30},{"d":5,"cat":"Models","b":"1 of 6","sku":74,"pl":"BANDAI SPIRITS","min":30},{"d":6,"cat":"Paint/Tool","b":"2 of 16","sku":77,"pl":"Tamiya","min":31},{"d":7,"cat":"R/C Land","b":"2 of 15","sku":76,"pl":"Traxxas","min":30},{"d":8,"cat":"Specialty","b":"2 of 14","sku":77,"pl":"None","min":31},{"d":9,"cat":"Games","b":"2 of 12","sku":74,"pl":"Games Workshop","min":30},{"d":10,"cat":"Paint/Tool","b":"3 of 16","sku":77,"pl":"Tamiya","min":31},{"d":11,"cat":"R/C Land","b":"3 of 15","sku":75,"pl":"Traxxas","min":30},{"d":12,"cat":"Specialty","b":"3 of 14","sku":78,"pl":"None \u00b7 Eurographics","min":31},{"d":13,"cat":"Games","b":"3 of 12","sku":74,"pl":"Games Workshop","min":30},{"d":14,"cat":"Paint/Tool","b":"4 of 16","sku":77,"pl":"Tamiya \u00b7 The Army Painter","min":31},{"d":15,"cat":"R/C Land","b":"4 of 15","sku":76,"pl":"Traxxas","min":30},{"d":16,"cat":"Models","b":"2 of 6","sku":74,"pl":"BANDAI SPIRITS","min":30},{"d":17,"cat":"Specialty","b":"4 of 14","sku":78,"pl":"Eurographics","min":31},{"d":18,"cat":"Paint/Tool","b":"5 of 16","sku":77,"pl":"The Army Painter","min":31},{"d":19,"cat":"Games","b":"4 of 12","sku":74,"pl":"Games Workshop","min":30},{"d":20,"cat":"R/C Land","b":"5 of 15","sku":76,"pl":"Traxxas","min":30},{"d":21,"cat":"Specialty","b":"5 of 14","sku":78,"pl":"Eurographics \u00b7 Robotime","min":31},{"d":22,"cat":"Paint/Tool","b":"6 of 16","sku":77,"pl":"The Army Painter","min":31},{"d":23,"cat":"R/C Land","b":"6 of 15","sku":76,"pl":"Traxxas","min":30},{"d":24,"cat":"Games","b":"5 of 12","sku":74,"pl":"Games Workshop","min":30},{"d":25,"cat":"Specialty","b":"6 of 14","sku":77,"pl":"Robotime \u00b7 BLOKEES","min":31},{"d":26,"cat":"Paint/Tool","b":"7 of 16","sku":77,"pl":"The Army Painter \u00b7 Vallejo Paints","min":31},{"d":27,"cat":"Models","b":"3 of 6","sku":74,"pl":"BANDAI SPIRITS","min":30},{"d":28,"cat":"R/C Land","b":"7 of 15","sku":76,"pl":"Traxxas \u00b7 Arrma","min":30},{"d":29,"cat":"Games","b":"6 of 12","sku":74,"pl":"Games Workshop","min":30},{"d":30,"cat":"Specialty","b":"7 of 14","sku":78,"pl":"BLOKEES \u00b7 Keycraft","min":31},{"d":31,"cat":"Paint/Tool","b":"8 of 16","sku":77,"pl":"Vallejo Paints","min":31},{"d":32,"cat":"R/C Air","b":"1 of 1","sku":102,"pl":"DuBro \u00b7 RAGE RC \u00b7 Traxxas \u00b7 E-Flite + 13 more","min":41},{"d":33,"cat":"R/C Land","b":"8 of 15","sku":75,"pl":"Arrma","min":30},{"d":34,"cat":"Railroad+Misc","b":"1 of 1","sku":87,"pl":"WALTHERS ACCESSORIES ~WAL \u00b7 None \u00b7 WOODLAND SCEN \u00b7 ATLAS TRAINS + 12 more","min":35},{"d":35,"cat":"Paint/Tool","b":"9 of 16","sku":77,"pl":"Vallejo Paints \u00b7 Testors","min":31},{"d":36,"cat":"Specialty","b":"8 of 14","sku":78,"pl":"Keycraft \u00b7 BC MINI \u00b7 Nanoblock Construction","min":31},{"d":37,"cat":"Games","b":"7 of 12","sku":73,"pl":"Games Workshop \u00b7 The Army Painter","min":29},{"d":38,"cat":"R/C Land","b":"9 of 15","sku":76,"pl":"Arrma \u00b7 TREAL HOBBY","min":30},{"d":39,"cat":"Models","b":"4 of 6","sku":74,"pl":"BANDAI SPIRITS","min":30},{"d":40,"cat":"Paint/Tool","b":"10 of 16","sku":77,"pl":"Testors \u00b7 REVELL-MONOGRAM","min":31},{"d":41,"cat":"Specialty","b":"9 of 14","sku":77,"pl":"Nanoblock Construction \u00b7 Toysmith \u00b7 Crazy Aaron's","min":31},{"d":42,"cat":"Games","b":"8 of 12","sku":74,"pl":"The Army Painter \u00b7 ARCANE TINMEN ~ACD~ALL~ATM","min":30},{"d":43,"cat":"R/C Land","b":"10 of 15","sku":76,"pl":"TREAL HOBBY \u00b7 Kyosho \u00b7 AXIAL CORP","min":30},{"d":44,"cat":"Paint/Tool","b":"11 of 16","sku":77,"pl":"REVELL-MONOGRAM \u00b7 K&S","min":31},{"d":45,"cat":"Specialty","b":"10 of 14","sku":78,"pl":"Crazy Aaron's \u00b7 LEGO \u00b7 TY INC-BEANIE BABIES~DIRECT \u00b7 Estes","min":31},{"d":46,"cat":"R/C Land","b":"11 of 15","sku":76,"pl":"AXIAL CORP \u00b7 Losi \u00b7 EcoPower \u00b7 Pro-Line + 1 more","min":30},{"d":47,"cat":"Games","b":"9 of 12","sku":74,"pl":"ARCANE TINMEN ~ACD~ALL~ATM \u00b7 WOODLAND SCEN","min":30},{"d":48,"cat":"Paint/Tool","b":"12 of 16","sku":77,"pl":"K&S \u00b7 EVERGREEN SCALE","min":31},{"d":49,"cat":"Models","b":"5 of 6","sku":74,"pl":"BANDAI SPIRITS \u00b7 None \u00b7 AOSHIMA ~STV~DIRECT","min":30},{"d":50,"cat":"Specialty","b":"11 of 14","sku":78,"pl":"Estes \u00b7 SCHLEICH N. AMERICA ~SCK~DIRECT \u00b7 SCHYLLING ~SCY \u00b7 PINE CAR","min":31},{"d":51,"cat":"R/C Land","b":"12 of 15","sku":76,"pl":"Yeah Racing \u00b7 HOBBY ETC/HOT RACING \u00b7 Spektrum RC \u00b7 Upgrade R/C + 1 more","min":30},{"d":52,"cat":"Paint/Tool","b":"13 of 16","sku":77,"pl":"EVERGREEN SCALE \u00b7 Games Workshop","min":31},{"d":53,"cat":"Games","b":"10 of 12","sku":74,"pl":"WOODLAND SCEN \u00b7 None","min":30},{"d":54,"cat":"Specialty","b":"12 of 14","sku":78,"pl":"SQUISHABLE \u00b7 Cobble Hill Puzzles \u00b7 GEL BLASTER \u00b7 Mattel + 4 more","min":31},{"d":55,"cat":"R/C Land","b":"13 of 15","sku":75,"pl":"RC4WD \u00b7 INJORA \u00b7 ProTek RC \u00b7 RPM INC + 3 more","min":30},{"d":56,"cat":"Paint/Tool","b":"14 of 16","sku":77,"pl":"Games Workshop \u00b7 Traxxas \u00b7 DSPIAE \u00b7 AK INTERACTIVE ~STV","min":31},{"d":57,"cat":"Games","b":"11 of 12","sku":74,"pl":"None \u00b7 Wizards Of The Coast \u00b7 FOAM BRAIN GAMES \u00b7 Outset Media + 1 more","min":30},{"d":58,"cat":"Specialty","b":"13 of 14","sku":77,"pl":"AUTO WORLD ~STV~HHW \u00b7 Crayola Llc \u00b7 Magnum Rubber Band Guns \u00b7 DART ZONE + 14 more","min":31},{"d":59,"cat":"R/C Land","b":"14 of 15","sku":76,"pl":"Common Sense RC \u00b7 Samix \u00b7 ECX \u00b7 Maverick + 9 more","min":30},{"d":60,"cat":"Paint/Tool","b":"15 of 16","sku":77,"pl":"AK INTERACTIVE ~STV \u00b7 MR. HOBBY PAINTS AND TOOLS \u00b7 ATLAS BRUSHES \u00b7 Bob Smith Industries + 3 more","min":31},{"d":61,"cat":"Models","b":"6 of 6","sku":74,"pl":"AOSHIMA ~STV~DIRECT \u00b7 Kotobukiya Models \u00b7 YOLO PARK \u00b7 GOOD SMILE COMPANY + 17 more","min":30},{"d":62,"cat":"Games","b":"12 of 12","sku":74,"pl":"ULTRAPRO ~ACD~ALL~SHD \u00b7 ULTI ~ULT \u00b7 BANDAI SPIRITS \u00b7 SMART TOYS AND GAMES + 22 more","min":30},{"d":63,"cat":"Specialty","b":"14 of 14","sku":78,"pl":"Coex \u00b7 Dream International \u00b7 Games Workshop \u00b7 GoatGuns + 46 more","min":31},{"d":64,"cat":"R/C Land","b":"15 of 15","sku":76,"pl":"*R* RCE RACERS EDGE \u00b7 Carrera \u00b7 DuraTrax \u00b7 MyTrickRC + 48 more","min":30},{"d":65,"cat":"Paint/Tool","b":"16 of 16","sku":77,"pl":"MODELCRAFT \u00b7 GOD HAND TOOLS \u00b7 BRU LINE ~BRU \u00b7 EcoPower + 31 more","min":31}];
 
@@ -1846,9 +1867,12 @@ function renderCycleCountCard() {
   if (isWeekend && offset === 0) {
     card.innerHTML = `
       <div class="cc-hd">
-        <div>
-          <div class="kicker">WEEKEND</div>
-          <h3>No cycle count today</h3>
+        <div class="cc-hd-row">
+          <div>
+            <div class="kicker">WEEKEND</div>
+            <h3>No cycle count today</h3>
+          </div>
+          <button class="cc-collapse-btn" data-act="collapse-cc" title="Collapse cycle count">▶</button>
         </div>
       </div>
       <div class="cc-nav">
@@ -1977,10 +2001,13 @@ function renderCycleCountCard() {
 
   card.innerHTML = `
     <div class="cc-hd">
-      <div>
-        <div class="kicker">${isWeekend && offset === 0 ? `WEEKEND — NO BATCH DUE TODAY` : `CYCLE COUNT BATCH`} <span class="day-pill" ${isWeekend && offset === 0 ? 'style="background:#5B5B5B;"' : ''}>Day ${batch}/${maxBatch}</span></div>
-        <h3>${full.set_title || (full.cat + ' — Batch ' + full.b)}${isWeekend && offset === 0 ? ' (Friday)' : ''}</h3>
-        <div class="kicker" style="opacity:.65; margin-top:4px;">${full.cat} · Batch ${full.b}</div>
+      <div class="cc-hd-row">
+        <div>
+          <div class="kicker">${isWeekend && offset === 0 ? `WEEKEND — NO BATCH DUE TODAY` : `CYCLE COUNT BATCH`} <span class="day-pill" ${isWeekend && offset === 0 ? 'style="background:#5B5B5B;"' : ''}>Day ${batch}/${maxBatch}</span></div>
+          <h3>${full.set_title || (full.cat + ' — Batch ' + full.b)}${isWeekend && offset === 0 ? ' (Friday)' : ''}</h3>
+          <div class="kicker" style="opacity:.65; margin-top:4px;">${full.cat} · Batch ${full.b}</div>
+        </div>
+        <button class="cc-collapse-btn" data-act="collapse-cc" title="Collapse cycle count">▶</button>
       </div>
     </div>
     <div class="cc-nav">
@@ -2612,11 +2639,31 @@ renderEditList = function(section) {
 };
 
 
+
+// ---------- Cycle count collapse / expand ----------
+function setCycleCollapsed(collapsed) {
+  state.prefs = state.prefs || {};
+  state.prefs.cycleCollapsed = !!collapsed;
+  save();
+  const grid = document.querySelector('.today-grid');
+  if (grid) grid.classList.toggle('cc-collapsed', state.prefs.cycleCollapsed);
+}
+function applyCycleCollapsedFromPrefs() {
+  const collapsed = state.prefs && state.prefs.cycleCollapsed;
+  const grid = document.querySelector('.today-grid');
+  if (grid) grid.classList.toggle('cc-collapsed', !!collapsed);
+}
+document.addEventListener('click', (e) => {
+  if (e.target.closest('[data-act="collapse-cc"]')) { setCycleCollapsed(true); }
+  if (e.target.closest('#cc-expand-btn')) { setCycleCollapsed(false); }
+});
+
 // ---------- Init ----------
 applyDynamicTasks();
 applyTheme();
 renderCycleCountCard();
 renderTargetsCard();
+applyCycleCollapsedFromPrefs();
 refreshWhoPill();
 refreshRoleToggle();
 renderChecklist('opening');
