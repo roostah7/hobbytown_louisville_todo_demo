@@ -71,6 +71,9 @@
     padding: 6px 10px; border-radius: 8px; font-size: 12px;
   }
   .who-btn:hover { background: rgba(255,255,255,.16); }
+  .sync-dot { width: 9px; height: 9px; border-radius: 999px; flex-shrink: 0; margin-right: 2px; transition: background .3s; }
+  .sync-dot.online  { background: #1FA463; box-shadow: 0 0 0 3px rgba(31,164,99,.25); }
+  .sync-dot.offline { background: #C9933A; box-shadow: 0 0 0 3px rgba(229,138,0,.2); }
   /* ===== Tabs ===== */
   nav.tabs {
     max-width: 1500px; margin: 0 auto;
@@ -830,6 +833,7 @@
     <img class="logo" alt="HobbyTown" />
     <div class="brand">HobbyTown Louisville<small>Daily Ops · v0.1</small></div>
     <div class="who" id="who-pill">
+      <span class="sync-dot offline" id="sync-dot" title="Connecting…"></span>
       <div class="av" id="who-av">?</div>
       <span class="nm" id="who-name">Not signed in</span>
       <button class="who-btn" id="who-btn">Switch</button>
@@ -1342,6 +1346,9 @@ function save() {
     try { if (typeof toast === 'function') toast('Could not save — storage full or blocked.'); } catch(_) {}
     console.warn('save() failed:', e);
   }
+  // Push the shared portion of state up to Supabase (debounced). Suppressed
+  // while we're applying a remote update so we don't echo it straight back.
+  if (typeof schedulePush === 'function' && !window.__applyingRemote) schedulePush();
 }
 let state = load() || {
   people: DEFAULT_PEOPLE,
@@ -2715,6 +2722,104 @@ renderEditList = function(section) {
 
 
 
+// ---------- Supabase shared-state sync (REST, no SDK) ----------
+// Static page on GitHub Pages + Supabase Postgres row as the shared "document".
+// We deliberately use plain fetch() instead of the Supabase JS SDK (the SDK
+// uses eval(), which some browser extensions block).
+const SB_URL = 'https://qacybffinyqpzrjmalrr.supabase.co';
+const SB_KEY = 'sb_publishable_04-IYCEfEW38KkCew8N2_Q__GCKQ8Yd';
+const SB_ROW = SB_URL + '/rest/v1/ops_state?id=eq.1';
+const SB_HEADERS = { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json' };
+const SYNC_INTERVAL_MS = 8000;
+
+// Fields that are SHARED across everyone (synced). Everything else
+// (currentUserId, prefs, viewingBatch, reminders) stays per-device.
+const SHARED_FIELDS = ['people', 'tasks', 'tasksVersion', 'days', 'log', 'notes', 'cycleCountState', 'cycleCountMigrated', 'weeklyProgress'];
+const MY_CLIENT_ID = Math.random().toString(36).slice(2);
+let lastRemoteUpdatedAt = null;   // last updated_at we've applied
+let pushTimer = null;
+let syncOnline = false;
+
+function sharedSnapshot() {
+  const out = { _writer: MY_CLIENT_ID, _writtenAt: Date.now() };
+  SHARED_FIELDS.forEach(f => { if (state[f] !== undefined) out[f] = state[f]; });
+  return out;
+}
+function applyShared(data) {
+  window.__applyingRemote = true;
+  SHARED_FIELDS.forEach(f => { if (data[f] !== undefined) state[f] = data[f]; });
+  try { localStorage.setItem(KEY, JSON.stringify(state)); } catch(_) {}
+  window.__applyingRemote = false;
+}
+
+function setSyncStatus(online) {
+  syncOnline = online;
+  const el = document.getElementById('sync-dot');
+  if (el) {
+    el.classList.toggle('online', online);
+    el.classList.toggle('offline', !online);
+    el.title = online ? 'Synced with the cloud — everyone shares this data' : 'Offline — changes save locally and will sync when reconnected';
+  }
+}
+
+function renderAllViews() {
+  try { refreshWhoPill(); } catch(_) {}
+  try { refreshRoleToggle(); } catch(_) {}
+  try { renderChecklist('opening'); renderChecklist('midshift'); renderChecklist('closing'); } catch(_) {}
+  try { updateStats(); } catch(_) {}
+  try { renderCycleCountCard(); } catch(_) {}
+  try { renderTargetsCard(); } catch(_) {}
+  try { renderLog(); } catch(_) {}
+  try { renderNotes(); } catch(_) {}
+}
+
+async function pushNow() {
+  try {
+    const body = JSON.stringify({ data: sharedSnapshot(), updated_at: new Date().toISOString() });
+    const res = await fetch(SB_ROW, { method: 'PATCH', headers: { ...SB_HEADERS, 'Prefer': 'return=minimal' }, body });
+    setSyncStatus(res.ok);
+  } catch (e) {
+    setSyncStatus(false);
+  }
+}
+function schedulePush() {
+  clearTimeout(pushTimer);
+  pushTimer = setTimeout(pushNow, 700);
+}
+
+async function pullNow() {
+  try {
+    const res = await fetch(SB_ROW + '&select=data,updated_at', { headers: SB_HEADERS });
+    if (!res.ok) { setSyncStatus(false); return; }
+    setSyncStatus(true);
+    const rows = await res.json();
+    if (!rows || !rows.length) return;
+    const { data, updated_at } = rows[0];
+    if (!data || Object.keys(data).length === 0) {
+      // Remote is empty (fresh table) — seed it from our local state.
+      await pushNow();
+      lastRemoteUpdatedAt = new Date().toISOString();
+      return;
+    }
+    if (updated_at === lastRemoteUpdatedAt) return;     // nothing new
+    lastRemoteUpdatedAt = updated_at;
+    if (data._writer === MY_CLIENT_ID) return;          // our own echo — ignore
+    applyShared(data);
+    renderAllViews();
+  } catch (e) {
+    setSyncStatus(false);
+  }
+}
+
+async function syncInit() {
+  await pullNow();          // initial load: pull shared state, render
+  renderAllViews();
+  setInterval(pullNow, SYNC_INTERVAL_MS);
+  // Push promptly when the tab regains focus / before unload
+  window.addEventListener('online', pullNow);
+  window.addEventListener('visibilitychange', () => { if (!document.hidden) pullNow(); });
+}
+
 // ---------- Init ----------
 applyDynamicTasks();
 applyTheme();
@@ -2729,6 +2834,7 @@ updateStats();
 renderLog();
 renderNotes();
 renderReminders();
+syncInit();
 
 // Auto-prompt for who if not set
 if (!state.currentUserId) {
