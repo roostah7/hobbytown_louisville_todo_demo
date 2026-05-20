@@ -369,6 +369,78 @@
   .tg-foot button { background: transparent; border: 0; color: var(--red); font-weight: 700; cursor: pointer; padding: 4px 8px; font-size: 12.5px; }
   .tg-foot button:hover { text-decoration: underline; }
   .tg-week { padding: 0 16px 14px; display: none; }
+
+  /* Weekly profit progress widget — lives inside the "Show full week" panel */
+  .wp-card {
+    background: var(--bg); border: 1px solid var(--line); border-radius: 12px;
+    padding: 14px 16px; margin-top: 4px;
+  }
+  .wp-hd { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 10px; flex-wrap: wrap; }
+  .wp-kicker { font-size: 10.5px; font-weight: 800; letter-spacing: .6px; text-transform: uppercase; color: var(--muted); }
+  .wp-week { font-size: 13px; font-weight: 700; color: var(--ink); margin-top: 2px; }
+  .wp-msg { font-size: 13px; color: var(--ink); flex: 1; min-width: 240px; text-align: right; }
+  .wp-msg b { font-weight: 800; }
+  .wp-msg.goal-hit b { color: var(--good); }
+  .wp-msg.goal-close b { color: #E58A00; }
+  .wp-msg.goal-mid b { color: #3D8FFF; }
+  .wp-msg.goal-early b { color: var(--ink); }
+
+  .wp-bar-wrap { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+  .wp-bar-track {
+    position: relative; flex: 1; height: 36px; background: var(--card);
+    border: 1px solid var(--line); border-radius: 10px; overflow: hidden;
+  }
+  .wp-bar-fill {
+    position: absolute; left: 0; top: 0; bottom: 0;
+    background: linear-gradient(90deg, #FFC576 0%, #E58A00 100%);
+    transition: width .35s ease;
+  }
+  .wp-bar-fill.goal-mid   { background: linear-gradient(90deg, #6FAFF4 0%, #3D8FFF 100%); }
+  .wp-bar-fill.goal-close { background: linear-gradient(90deg, #FFC576 0%, #E58A00 100%); }
+  .wp-bar-fill.goal-hit   { background: linear-gradient(90deg, #6BD3A2 0%, #1FA463 100%); }
+  .wp-bar-overflow {
+    position: absolute; left: 100%; top: 0; bottom: 0;
+    background: repeating-linear-gradient(45deg, #1FA463 0 8px, #178548 8px 16px);
+    border-left: 2px solid #fff;
+  }
+  .wp-bar-labels {
+    position: absolute; inset: 0; display: flex; align-items: center; justify-content: space-between;
+    padding: 0 12px; font-size: 13px; font-weight: 700; color: var(--ink); pointer-events: none;
+    text-shadow: 0 0 6px rgba(255,255,255,.85);
+  }
+  [data-theme="dark"] .wp-bar-labels { text-shadow: 0 0 6px rgba(0,0,0,.7); color: #fff; }
+  .wp-bar-labels .wp-cur { font-variant-numeric: tabular-nums; }
+  .wp-bar-labels .wp-goal { color: var(--muted); font-weight: 600; font-size: 12px; }
+  .wp-pct {
+    min-width: 64px; text-align: right; font-size: 22px; font-weight: 800;
+    color: var(--ink); font-variant-numeric: tabular-nums;
+  }
+  .wp-pct.goal-hit { color: var(--good); }
+  .wp-pct.goal-close { color: #E58A00; }
+  .wp-pct.goal-mid { color: #3D8FFF; }
+
+  .wp-controls { display: flex; flex-direction: column; gap: 10px; }
+  .wp-slider {
+    width: 100%; accent-color: var(--red); height: 6px; cursor: pointer;
+  }
+  .wp-input-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .wp-label { font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .4px; }
+  .wp-dollar-sign { font-size: 14px; color: var(--muted); font-weight: 700; margin-right: -4px; }
+  .wp-input {
+    width: 110px; background: var(--card); color: var(--ink); border: 1px solid var(--line);
+    border-radius: 8px; padding: 6px 10px; font: inherit; font-size: 14px; font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+  .wp-input:focus { outline: none; border-color: var(--red); box-shadow: 0 0 0 3px rgba(227,24,55,.15); }
+  .wp-quick {
+    background: var(--card); color: var(--ink); border: 1px solid var(--line);
+    border-radius: 8px; padding: 6px 10px; font: inherit; font-size: 12px; font-weight: 700;
+    cursor: pointer;
+  }
+  .wp-quick:hover { border-color: var(--red); color: var(--red); }
+  .wp-quick.wp-reset { margin-left: auto; color: var(--muted); }
+  .wp-quick.wp-reset:hover { color: var(--red); }
+  .wp-meta { margin-top: 10px; font-size: 11.5px; color: var(--muted); font-style: italic; }
   .tg-week.open { display: block; }
   .tg-week table { width: 100%; border-collapse: collapse; font-size: 12px; }
   .tg-week th, .tg-week td { padding: 6px 8px; border-bottom: 1px solid var(--line); }
@@ -1787,7 +1859,34 @@ function openNoteEditor(section, taskId, taskEl) {
   });
 }
 
-// ---------- Targets card (manager/owner only) ----------
+// ---------- Targets card (manager-only) ----------
+// Weekly profit progress helpers — Sunday-to-Saturday week, keyed by Sunday date
+function weekKey(d = new Date()) {
+  const sun = new Date(d);
+  sun.setDate(d.getDate() - d.getDay());
+  sun.setHours(0, 0, 0, 0);
+  return sun.toISOString().slice(0, 10);
+}
+function weekRangeLabel(d = new Date()) {
+  const sun = new Date(d); sun.setDate(d.getDate() - d.getDay());
+  const sat = new Date(sun); sat.setDate(sun.getDate() + 6);
+  const fmt = (x) => x.toLocaleDateString([], { month: 'short', day: 'numeric' });
+  return `${fmt(sun)} – ${fmt(sat)}`;
+}
+function getWeeklyProgress() {
+  if (!state.weeklyProgress) state.weeklyProgress = {};
+  const k = weekKey();
+  if (!state.weeklyProgress[k]) state.weeklyProgress[k] = { dollars: 0, lastUpdate: null, lastUpdateBy: null };
+  return state.weeklyProgress[k];
+}
+function setWeeklyProgress(dollars) {
+  const wp = getWeeklyProgress();
+  wp.dollars = Math.max(0, Math.round(dollars));
+  wp.lastUpdate = Date.now();
+  wp.lastUpdateBy = state.currentUserId;
+  save();
+}
+
 function renderTargetsCard() {
   const card = document.getElementById('card-targets');
   if (!card) return;
@@ -1802,9 +1901,26 @@ function renderTargetsCard() {
   const t = SALES_TARGETS[dow];
   const dateStr = now.toLocaleDateString([], { weekday: 'long', month: 'short', day: 'numeric' });
 
-  // MANAGER view: Break-even target single tile, with "Show full week" toggle (break-even only)
+  // MANAGER view: Break-even target single tile, with "Show full week" toggle
   const isOpenMgr = card.classList.contains('week-open');
   const wtMgr = SALES_TARGETS_META.weekTotal;
+  const wp = getWeeklyProgress();
+  const goal = wtMgr.breakEven;
+  const pct = Math.min(150, Math.round((wp.dollars / goal) * 100));
+  const pctClass = pct >= 100 ? 'goal-hit' : (pct >= 75 ? 'goal-close' : (pct >= 40 ? 'goal-mid' : 'goal-early'));
+  const lastUpdater = wp.lastUpdateBy ? (state.people.find(p => p.id === wp.lastUpdateBy) || {}).name : null;
+  const lastWhen = wp.lastUpdate ? new Date(wp.lastUpdate).toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : null;
+  const sliderMax = Math.max(Math.round(goal * 1.5), 1000);
+  const milestone = pct >= 100
+    ? `🎉 <b>Goal hit!</b> We're ${pct}% to break-even — every dollar from here is profit.`
+    : pct >= 75
+      ? `🔥 <b>${pct}%</b> of weekly profit goal — almost there!`
+      : pct >= 40
+        ? `📈 <b>${pct}%</b> of weekly profit goal — solid pace.`
+        : pct > 0
+          ? `🌱 <b>${pct}%</b> of weekly profit goal — let's build from here.`
+          : `Enter this week's profit so far to track progress.`;
+
   const rowsMgr = Object.keys(SALES_TARGETS).map(k => {
     const r = SALES_TARGETS[k]; const today = (+k === dow);
     return `<tr class="${today ? 'today' : ''}">
@@ -1816,6 +1932,7 @@ function renderTargetsCard() {
     <td>Weekly total</td>
     <td class="num">${fmtUSD(wtMgr.breakEven)}</td>
   </tr>`;
+
   card.innerHTML = `
     <div class="tg-hd">
       <div>
@@ -1835,13 +1952,69 @@ function renderTargetsCard() {
       <button data-act="toggle-week">${isOpenMgr ? 'Hide full week ▲' : 'Show full week ▼'}</button>
     </div>
     <div class="tg-week ${isOpenMgr ? 'open' : ''}">
-      <table>
+      <div class="wp-card">
+        <div class="wp-hd">
+          <div>
+            <div class="wp-kicker">WEEKLY PROFIT PROGRESS</div>
+            <div class="wp-week">${weekRangeLabel()}</div>
+          </div>
+          <div class="wp-msg ${pctClass}">${milestone}</div>
+        </div>
+        <div class="wp-bar-wrap">
+          <div class="wp-bar-track">
+            <div class="wp-bar-fill ${pctClass}" style="width: ${Math.min(pct, 100)}%;"></div>
+            ${pct > 100 ? `<div class="wp-bar-overflow" style="width: ${Math.min(pct - 100, 50)}%;"></div>` : ''}
+            <div class="wp-bar-labels">
+              <span class="wp-cur">${fmtUSD(wp.dollars)}</span>
+              <span class="wp-goal">of ${fmtUSD(goal)} goal</span>
+            </div>
+          </div>
+          <div class="wp-pct ${pctClass}">${pct}%</div>
+        </div>
+        <div class="wp-controls">
+          <input class="wp-slider" type="range" min="0" max="${sliderMax}" step="50" value="${wp.dollars}" id="wp-slider" />
+          <div class="wp-input-row">
+            <label class="wp-label">Profit so far:</label>
+            <span class="wp-dollar-sign">$</span>
+            <input class="wp-input" type="number" min="0" step="1" value="${wp.dollars}" id="wp-input" />
+            <button class="wp-quick" data-add="100">+$100</button>
+            <button class="wp-quick" data-add="500">+$500</button>
+            <button class="wp-quick" data-add="1000">+$1,000</button>
+            <button class="wp-quick wp-reset" data-act="reset">Reset</button>
+          </div>
+        </div>
+        ${lastUpdater ? `<div class="wp-meta">Last updated by ${lastUpdater} · ${lastWhen}</div>` : ''}
+      </div>
+      <table style="margin-top: 14px;">
         <thead><tr><th>Day</th><th class="num">Break-even</th></tr></thead>
         <tbody>${rowsMgr}${totalRowMgr}</tbody>
       </table>
     </div>`;
+
   const btnMgr = card.querySelector('[data-act="toggle-week"]');
   if (btnMgr) btnMgr.onclick = () => { card.classList.toggle('week-open'); renderTargetsCard(); };
+
+  // Wire weekly-progress controls
+  const slider = card.querySelector('#wp-slider');
+  const input = card.querySelector('#wp-input');
+  if (slider && input) {
+    let debounce = null;
+    function commit(v) {
+      setWeeklyProgress(v);
+      clearTimeout(debounce);
+      debounce = setTimeout(renderTargetsCard, 250);
+    }
+    slider.addEventListener('input', (e) => { input.value = e.target.value; });
+    slider.addEventListener('change', (e) => commit(Number(e.target.value)));
+    input.addEventListener('change', (e) => commit(Number(e.target.value || 0)));
+    card.querySelectorAll('.wp-quick[data-add]').forEach(btn => {
+      btn.onclick = () => commit(wp.dollars + Number(btn.dataset.add));
+    });
+    const resetBtn = card.querySelector('.wp-quick[data-act="reset"]');
+    if (resetBtn) resetBtn.onclick = () => {
+      if (confirm('Reset this week\'s profit progress to $0?')) commit(0);
+    };
+  }
 }
 
 // ---------- Cycle Count Card ----------
