@@ -1112,22 +1112,42 @@ const SALES_TARGETS_META = {
 };
 function fmtUSD(n) { return n.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }); }
 
-// Compute today's weekday-of-quarter (1..N). Returns null on weekends.
-// Day 1 of the cycle-count rotation = June 1, 2026 (a Monday).
-// (Function name kept as dayOfQuarter for compatibility, but it now returns
-//  the weekday number since the fixed start date.)
-const CYCLE_COUNT_START = new Date(2026, 5, 1); // month 5 = June
+// Cycle-count rotation date logic.
+// - The rotation RESTARTS at Day 1 each year on January 2.
+// - 2026 is the launch year, so it starts June 1, 2026 instead of Jan 2.
+// - Counting is SUSPENDED Dec 10 through Jan 1 every year (holiday rush);
+//   it resumes (Day 1) on Jan 2.
+// (Function name kept as dayOfQuarter for back-compat; it returns the weekday
+//  number since this year's start, skipping weekends + the blackout.)
+const CYCLE_COUNT_START = new Date(2026, 5, 1); // June 1, 2026 — initial launch
+
+function cycleYearStart(year) {
+  // 2026 launches June 1; every later year restarts Jan 2.
+  if (year <= 2026) return new Date(2026, 5, 1);
+  return new Date(year, 0, 2);
+}
+function inBlackout(d) {
+  // Holiday suspension: Dec 10–31 and Jan 1.
+  const m = d.getMonth(), day = d.getDate();
+  if (m === 11 && day >= 10) return true;   // Dec 10–31
+  if (m === 0 && day === 1) return true;    // Jan 1
+  return false;
+}
 function dayOfQuarter(d) {
   d = d || new Date();
   const wd = d.getDay();
   if (wd === 0 || wd === 6) return null;            // weekend → no count
+  if (inBlackout(d)) return null;                   // holiday suspension
   const target = new Date(d.getFullYear(), d.getMonth(), d.getDate());
-  if (target < CYCLE_COUNT_START) return null;      // rotation hasn't started yet
+  const start = cycleYearStart(target.getFullYear());
+  if (target < start) return null;                  // before this year's rotation begins
+  // Count weekdays from this year's start to target (the blackout never falls
+  // inside this range, since start = Jan 2 / Jun 1 and target is a counting day).
   let count = 0;
-  const cur = new Date(CYCLE_COUNT_START);
+  const cur = new Date(start);
   while (cur <= target) {
     const w = cur.getDay();
-    if (w >= 1 && w <= 5) count++;
+    if (w >= 1 && w <= 5 && !inBlackout(cur)) count++;
     cur.setDate(cur.getDate() + 1);
   }
   return count;
@@ -1135,7 +1155,7 @@ function dayOfQuarter(d) {
 function cycleCountStarted(d) {
   d = d || new Date();
   const target = new Date(d.getFullYear(), d.getMonth(), d.getDate());
-  return target >= CYCLE_COUNT_START;
+  return target >= cycleYearStart(target.getFullYear());
 }
 
 
@@ -2095,7 +2115,7 @@ function renderCycleCountCard() {
   if (!bs.fixturesDone) bs.fixturesDone = {};
   const u = bs.completeBy ? state.people.find(p => p.id === bs.completeBy) : null;
   const completeTime = bs.completeAt ? new Date(bs.completeAt).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) : '';
-  const completeOnDate = bs.completedOnDate ? new Date(bs.completedOnDate).toLocaleDateString([], { month: 'short', day: 'numeric' }) : '';
+  const completeOnDate = bs.completedOnDate ? parseDateKey(bs.completedOnDate).toLocaleDateString([], { month: 'short', day: 'numeric' }) : '';
   const isWeekend = !dayOfQuarter();
 
   const offset = batch - todaysBatch;
@@ -2108,6 +2128,35 @@ function renderCycleCountCard() {
     viewingLabel = `${offset} day${offset===1?'':'s'} ahead`;
   } else {
     viewingLabel = `${-offset} day${-offset===1?'':'s'} behind`;
+  }
+
+  // Holiday blackout state — Dec 10 through Jan 1, counting is suspended
+  if (inBlackout(new Date()) && offset === 0 && state.viewingBatch == null) {
+    card.innerHTML = `
+      <div class="cc-hd">
+        <div class="cc-hd-row">
+          <div>
+            <div class="kicker">HOLIDAY PAUSE</div>
+            <h3>Cycle counting is on hold</h3>
+          </div>
+        </div>
+      </div>
+      <div class="cc-nav">
+        <button data-act="prev-day" title="Browse previous day">◀</button>
+        <div class="day-label">
+          ${todayDow}
+          <span class="small">Paused Dec 10 – Jan 1 · resumes Jan 2</span>
+        </div>
+        <button data-act="next-day" title="Browse next day">▶</button>
+      </div>
+      <div class="cc-empty">
+        <div class="em">🎄</div>
+        <h4>Counting is paused for the holidays.</h4>
+        <p>Enjoy the busy season! The rotation restarts fresh at Day 1 on <b>January 2</b>. Use ◀ / ▶ to browse the schedule if you want to plan ahead.</p>
+      </div>`;
+    card.querySelector('[data-act="prev-day"]').onclick = () => setViewingBatch(batch - 1, true);
+    card.querySelector('[data-act="next-day"]').onclick = () => setViewingBatch(batch + 1, true);
+    return;
   }
 
   // Pre-start state — before June 1, 2026 the rotation hasn't begun
